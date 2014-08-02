@@ -86,3 +86,5 @@ public IEnumerable<Order> GetOrdersByStatus(string status) {
         });
 }
 ```
+
+Now go have some fun exploring SqlHelper2!
