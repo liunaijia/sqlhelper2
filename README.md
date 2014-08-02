@@ -1,5 +1,3 @@
-> For the development background of this project please view [how to develop an easy-to-use database access class](https://github.com/liunaijia/sqlhelper2/wiki).
-
 # Quick Start Guide
 
 ### Configurate Connection String
@@ -87,4 +85,4 @@ public IEnumerable<Order> GetOrdersByStatus(string status) {
 }
 ```
 
-Now go have some fun exploring SqlHelper2!
+Now go have some fun exploring SqlHelper2! You can view [how to develop an easy-to-use database access class](https://github.com/liunaijia/sqlhelper2/wiki) for the development background of this project.
