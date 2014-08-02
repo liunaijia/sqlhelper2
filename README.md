@@ -1,4 +1,4 @@
-> For the development background of this project please view [how to develop an easy-to-use database access class](wiki).
+> For the development background of this project please view [how to develop an easy-to-use database access class](how to develop an easy-to-use database access class).
 
 # Quick Start Guide
 
