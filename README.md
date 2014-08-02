@@ -1,9 +1,9 @@
-> 本项目创作过程请见[如何做个好用的数据库访问类](doc/如何做个好用的数据库访问类.md)
+> For the development background of this project please view [how to develop an easy-to-use database access class](wiki).
 
-#快速入门
+# Quick Start Guide
 
-### 连接串配置
-> 和普通的连接串配置一样，需要提供providerName。
+### Configurate Connection String
+> As usual, setting the `connectionString` and `providerName`.
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -14,8 +14,8 @@
 </configuration>
 ```
 
-### 插入
-> 利用匿名对象构造SQL参数。
+### Insert
+> Using anonymous object to build SQL parameters.
 
 ```c#
 public void Save() {
@@ -30,8 +30,8 @@ public void Save() {
 }
 ```
 
-### 更新
-> 如果sql中的参数名和匿名对象中的名称一样（大小写也一样），可以不指定匿名类的成员名称。
+### Update
+> Field name could be ignored if parameter name is same with anonymous object property name.
 
 ```c#
 public void UpdateStatus(string orderId, int targetStatus) {
@@ -41,38 +41,37 @@ public void UpdateStatus(string orderId, int targetStatus) {
 }
 ```
 
-### 事务处理
-> 约定：在ExecuteTransaction代码块中不抛出异常提交事务，否则回滚事务。利用这个特点，可以实现业务上的完整性。
+### Transaction
+> Committing transaction if code in `ExecuteTransaction` block  doesn't throw an exception, otherwise rollbacking transaction.
 
 ```c#
 public void DecreaseSellableInventory(string sku, int decreasedAmount) {
     DatabaseFactory.CreateDatabase("mall").ExecuteTransaction(db => {
-        // 更新库存
+        // Update sellable amount
         db.ExecuteNonQuery("update Inventory set Sellable -= decreasedAmount where SkuId = @sku",
             new {sku, decreasedAmount});
 
-        // 查询更新后的库存量
+        // Get amount after updating
         var sellableAmount = db.ExecuteScalar<int>("select Sellable from Inventory where SkuId = @sku",
             new {sku});
 
-        // ...更新后的库存为负数，事务回滚
+        // ...Throw an exception to rollback transaction if amount is negative
         if (sellableAmount < 0)
-            throw new ApplicationException("库存量不允许为负数");
+            throw new ApplicationException("sellable amount can't be negative.");
 
-        // ...更新后的库存量为0，将sku下架
+        // ...Set SKU state to offline if it's amount is zero
         if (sellableAmount == 0)
             db.ExecuteNonQuery("update Sku set Status = @targetStatus where SkuId = @sku",
                 new {sku, targetStatus = "offline"});
 
-        // 上面的三次数据库访问（更新库存、查询库存、更新SKU状态）如果出现异常，如违反数据库约束、SQL写错等，
-        // 会抛出异常，整个事务回滚
+        // If any exception was thrown in above code block, such as database is disconnected, sql statement is wrong, database constraints are violated, rollback the whole transaction, otherwise commit it.
     });
 }
 ```
 
-### 查询
-> * 使用委托从DataReader中读取数据并填充业务对象。
-* **注意**，`IEnumerable`接口返回的数据是延迟执行的，“延迟”的本意是“减少计算”，但是如果使用不当，很可能反而会造成“重复计算”。对这个问题不了解的同学请阅读：[老赵的这篇文章](http://www.cnblogs.com/JeffreyZhao/archive/2009/06/08/laziness-traps.html)。
+### Query
+> * Using delegate to read data from `DataReader` and fill data into business object.
+* **NOTICE**: the return value of `IEnumerable` type is deferred execution, which means it doesn't execute any code when it's executed, until actual filtering/ordering/projecting is asked. So it will cause repeated execution if not using properly.
 
 ```c#
 public IEnumerable<Order> GetOrdersByStatus(string status) {
