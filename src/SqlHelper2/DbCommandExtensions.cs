@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Collections;
 
 namespace SqlHelper2 {
-    public static class DbCommandExtensions1 {
+    public static class DbCommandExtensions {
         public static void SetParameters(this DbCommand cmd, object parameters) {
             cmd.Parameters.Clear();
 
