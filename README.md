@@ -86,6 +86,16 @@ public void DecreaseSellableInventory(string sku, int decreasedAmount) {
 * **NOTICE**: the return value of `IEnumerable` type is deferred execution, which means it doesn't execute any code when it's executed, until actual filtering/ordering/projecting is asked. So it will cause repeated execution if not using properly.
 
 ```c#
+     //实现异步查询
+     await SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataReaderAsync("select * from tb1",null, dr =>
+            {
+                Console.WriteLine(dr[0]);
+            });
+     var data= await SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataReaderAsync<string>("select * from tb1", null, dr =>
+            {
+                return dr[0].ToString(); ;
+            });
+
 public IEnumerable<Order> GetOrdersByStatus(string status) {
     return DatabaseFactory.CreateDatabase("mall").ExecuteDataReader(
         @"select * from [Order] where Status = @status",
