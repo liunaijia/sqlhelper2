@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Data.Common;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace SqlHelper2 {
-    public static class DbCommandExtensions1 {
+    public static class DbCommandExtensions {
         public static void SetParameters(this DbCommand cmd, object parameters) {
             cmd.Parameters.Clear();
 
@@ -35,6 +36,16 @@ namespace SqlHelper2 {
             p.ParameterName = name;
             p.Value = value ?? DBNull.Value;
             cmd.Parameters.Add(p);
+        }
+
+        public static IEnumerable<T> Select<T>(
+            this DbDataReader reader, Func<DbDataReader, T> action)
+        {
+
+            while (reader.Read())
+            {
+                yield return action(reader);
+            }
         }
     }
 }

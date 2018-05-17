@@ -26,7 +26,21 @@ public void Save() {
 			TotalPrice = 89.2
 		});
 }
-```
+			//batch insert sql
+			var parameters = new List<object>();
+			var sql = "INSERT INTO [dbo].[Tb1]([f1]) VALUES (@f1)";
+			parameters.Add(new { f1="a" });
+			parameters.Add(new { f1 = "b" });
+			parameters.Add(new { f1 = "c" });
+			parameters.Add(new { f1 = "d" });
+			parameters.Add(new { f1 = "e" });
+			SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteNonQuery(sql,parameters);
+			//raw sql list
+			var sqllist = new List<string>();
+			sqllist.Add("INSERT INTO [dbo].[Tb1]([f1]) VALUES ('a')");
+			sqllist.Add("INSERT INTO [dbo].[Tb1]([f1]) VALUES ('b')");
+			sqllist.Add("INSERT INTO [dbo].[Tb1]([f1]) VALUES ('c')");
+			SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteNonQuery(sqllist);
 
 ### Update
 > Field name could be ignored if parameter name is same with anonymous object property name.
@@ -72,6 +86,16 @@ public void DecreaseSellableInventory(string sku, int decreasedAmount) {
 * **NOTICE**: the return value of `IEnumerable` type is deferred execution, which means it doesn't execute any code when it's executed, until actual filtering/ordering/projecting is asked. So it will cause repeated execution if not using properly.
 
 ```c#
+     //实现异步查询
+     await SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataReaderAsync("select * from tb1",null, dr =>
+            {
+                Console.WriteLine(dr[0]);
+            });
+     var data= await SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataReaderAsync<string>("select * from tb1", null, dr =>
+            {
+                return dr[0].ToString(); ;
+            });
+
 public IEnumerable<Order> GetOrdersByStatus(string status) {
     return DatabaseFactory.CreateDatabase("mall").ExecuteDataReader(
         @"select * from [Order] where Status = @status",
@@ -84,5 +108,13 @@ public IEnumerable<Order> GetOrdersByStatus(string status) {
         });
 }
 ```
+		// return dataSet
+		SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataSet("select * from tb1", null,ds=> {
+				Console.Write(ds);
+          });
+		  //return dataTable
+		  SqlHelper2.DatabaseFactory.CreateDatabase().ExecuteDataTable("select * from tb1", null, dt => {
+				Console.Write(dt);
+            });
 
 Now go have some fun exploring SqlHelper2! You can view [how to develop an easy-to-use database access class](https://github.com/liunaijia/sqlhelper2/wiki) for the development background of this project.
